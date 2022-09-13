@@ -1,6 +1,6 @@
 {
   "name": "lvuetools",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "> TODO: description",
   "author": "xiaoxin <3422056558@qq.com>",
   "homepage": "",
@@ -17,6 +17,8 @@
     "test": "node ./__tests__/lvuetools.test.js"
   },
   "dependencies": {
+    "echarts": "^5.3.3",
+    "echarts-gl": "^2.0.9",
     "gsap": "^3.11.1",
     "lodash": "^4.17.21"
   },

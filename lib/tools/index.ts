@@ -1,3 +1,4 @@
+import _ from 'lodash'
 function myTypeof(data: any) {
   var toString = Object.prototype.toString
   var dataType =
@@ -9,4 +10,15 @@ function myTypeof(data: any) {
           .toLowerCase()
   return dataType
 }
-export { myTypeof }
+
+const myDebounce = (func: ()=>any, waitConfig?: number | string | null) => {
+  if (myTypeof(waitConfig) === 'string') {
+    waitConfig = parseInt(waitConfig as string)
+  }
+  return _.debounce(
+    func,
+    waitConfig ? (waitConfig as number) : 300,
+    { leading: true, trailing: false },
+  )
+}
+export { myTypeof, myDebounce }

@@ -1,5 +1,6 @@
 import { App, DirectiveBinding } from 'vue'
 import _ from 'lodash'
+import { myDebounce } from '../tools/index'
 type StyleChangeType = {
   bottom: number
   height: number
@@ -13,29 +14,8 @@ type StyleChangeType = {
 const StyleChange = (app: App, options: any) => {
   app.directive('style-change', {
     mounted(el: HTMLElement, binding: DirectiveBinding<(Location: StyleChangeType) => any>) {
-      const getWaitTime = (): null | number => {
-        let waitTime = null
-        if (binding.arg === 'wait') {
-          for (const key in binding.modifiers) {
-            if (Object.prototype.hasOwnProperty.call(binding.modifiers, key)) {
-              waitTime = parseInt(key)
-            }
-          }
-          if (waitTime?.toString() === 'NaN') {
-            waitTime = null
-            throw console.error('waitTime is not a number')
-          }
-        }
-        return waitTime
-      }
-      const waitConfig = binding.arg === 'wait' ? getWaitTime() : null
-      const func = _.debounce(
-        () => {
-          binding.value(el.getBoundingClientRect())
-        },
-        waitConfig ? waitConfig : 300,
-        { leading: true, trailing: false },
-      )
+      const waitConfig = binding.arg?.split(':')[0]
+      const func = myDebounce(() => binding.value(el.getBoundingClientRect()), waitConfig)
       const boxCallback = (mutationsList: MutationRecord[], observer: MutationObserver) => {
         func()
       }

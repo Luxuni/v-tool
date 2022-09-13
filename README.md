@@ -4,27 +4,42 @@
 
 ## 使用方法
 
-### V-style-change：在style发生变化的时候做点什么！
+### *注意：参数具有严格的顺序要求，如果您想传入后续参数，那么请尽量传入前置参数，否则可能会发生意料之外的错误*
+
+### v-style-change：在style发生变化的时候做点什么！
 
 传入一个函数，第一个参数为object，里面会包含被绑定元素的位置属性。类型为：StyleChangeType,如果被绑定元素的style发生改变，则会触发传入的函数,您还可以自定义防抖函数的wait，默认为300ms
 
 使用wait：写法如下
 
-`v-style-change:wait.800`
+`v-style-change:800`
 
 这样您就将防抖间隔时间修改为了800ms
 
 ### v-appearance：开场！
 
-传入一个对象，类型为`gsap.TweenVars`，默认使用from方法，如果您想使用fromTo，那么您可以像下面这样使用它：
+完整参数传入如下
 
-`v-appearance:fromTo={from:{},to:{}}`
+```js
+v-appearance:customize:700:fromTo.update="{ from:{y :500},to:{y:0}} "
+```
 
-两者的类型都为`gsap.TweenVars`
+customize为自定义动画名称name，请保证其唯一性，否则可能会发生意料之外的错误
 
-如果您想被绑定元素发生更新的时候再次调用您传入的参数重新进行开场的话呢，您可以这样做：
+700位防抖函数的wait，如果开启了update更新，则此参数可能会对您有用，您可以自己决定wait，默认为300ms
 
-`v-appearance:from.update`或者`v-appearance:fromTo.update`**请注意！这时必须指定您想使用from还是fromTo**
+fromTo为动画方式，详情可以参考gsap的from和fromTo
 
+.update为开启被绑定元素更新时再次重新进行开场，会采用之前传入的wait作为防抖的wait
 
+### v-etoolscharts 图表！集成了Echarts
 
+完整参数传入如下
+
+```js
+v-etoolscharts:dark:svg="options"
+```
+
+dark为主题名称，可以参考echarts，可选lignt
+
+svg为渲染方式，可选canvas
