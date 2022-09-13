@@ -11,7 +11,7 @@ function myTypeof(data: any) {
   return dataType
 }
 
-const myDebounce = (func: ()=>any, waitConfig?: number | string | null) => {
+const myDebounce = (func: (...arg:any)=>any, waitConfig?: number | string | null) => {
   if (myTypeof(waitConfig) === 'string') {
     waitConfig = parseInt(waitConfig as string)
   }
