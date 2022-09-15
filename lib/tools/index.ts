@@ -101,6 +101,7 @@ const lineGenerator = (
     })
     material1.resolution.set(window.innerWidth, window.innerHeight)
     const line = new Line2(geometry, material1)
+    line.name = item.start + item.end
     line.computeLineDistances()
     scene.add(line)
   })
@@ -150,7 +151,7 @@ function onMouseClick(
     })
     relationMap.forEach((relationMapItem) => {
       scene.children.forEach((sceneItem) => {
-        if (sceneItem.name === relationMapItem.end) {
+        if (sceneItem.name === relationMapItem.end || sceneItem.name === relationMapItem.start + relationMapItem.end) {
           //@ts-ignore
           sceneItem.material.color.set(0xf675a8)
         }
