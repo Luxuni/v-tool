@@ -1,5 +1,6 @@
 import { App, DirectiveBinding } from 'vue'
 import { myDebounce } from '../tools'
+let resizeObserver: ResizeObserver | null = null
 const WH = (app: App) => {
   app.directive('wh', {
     mounted(el: HTMLElement, binding: DirectiveBinding<(...args: ResizeObserverEntry[]) => any>) {
@@ -11,6 +12,10 @@ const WH = (app: App) => {
         func(entries)
       })
       resizeObserver.observe(el)
+    },
+    unmounted(el: HTMLElement) {
+      ;(resizeObserver as ResizeObserver).disconnect()
+      resizeObserver = null
     },
   })
 }

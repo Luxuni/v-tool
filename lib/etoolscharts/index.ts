@@ -2,6 +2,7 @@ import { App, DirectiveBinding } from 'vue'
 import * as echarts from 'echarts'
 import _ from 'lodash'
 import { myDebounce } from '../tools'
+let resizeObserver: ResizeObserver | null = null
 const createEcharts = (el: HTMLElement, binding: DirectiveBinding<any>) => {
   if (echarts.getInstanceByDom(el)) {
     echarts.dispose(el)
@@ -22,10 +23,14 @@ const EToolsCharts = (app: App) => {
         echarts.dispose(el)
         createEcharts(el, binding)
       }, waitConfig)
-      const resizeObserver = new ResizeObserver((entries) => {
+      resizeObserver = new ResizeObserver((entries) => {
         func()
       })
       resizeObserver.observe(el)
+    },
+    unmounted(el: HTMLElement) {
+      ;(resizeObserver as ResizeObserver).disconnect()
+      resizeObserver = null
     },
   })
 }

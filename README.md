@@ -26,7 +26,7 @@ v-appearance:customize:700:fromTo.update="{ from:{y :500},to:{y:0}} "
 
 customize为自定义动画名称name，请保证其唯一性，否则可能会发生意料之外的错误
 
-700位防抖函数的wait，如果开启了update更新，则此参数可能会对您有用，您可以自己决定wait，默认为300ms
+700为防抖函数的wait，如果开启了update更新，则此参数可能会对您有用，您可以自己决定wait，默认为300ms
 
 fromTo为动画方式，详情可以参考gsap的from和fromTo
 
@@ -40,6 +40,19 @@ fromTo为动画方式，详情可以参考gsap的from和fromTo
 v-etoolscharts:dark:svg="options"
 ```
 
-dark为主题名称，可以参考echarts，可选lignt
+dark为主题名称，可以参考echarts，可选light
 
 svg为渲染方式，可选canvas
+
+### v-wh 在被绑定元素宽高改变时做点什么！
+
+完整传入参数如下
+
+```js
+v-wh:300="tt"
+```
+
+300为防抖函数wait
+
+tt为传入的函数，函数接收第一个参数为改变宽高附带的信息，类型为`ResizeObserverEntry[]`
+

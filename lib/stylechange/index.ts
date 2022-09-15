@@ -11,6 +11,7 @@ type StyleChangeType = {
   x: number
   y: number
 }
+let observer_box: MutationObserver | null = null
 const StyleChange = (app: App, options: any) => {
   app.directive('style-change', {
     mounted(el: HTMLElement, binding: DirectiveBinding<(Location: StyleChangeType) => any>) {
@@ -26,6 +27,10 @@ const StyleChange = (app: App, options: any) => {
         attributeFilter: ['style'],
         attributeOldValue: true,
       })
+    },
+    unmounted() {
+      ;(observer_box as MutationObserver).disconnect()
+      observer_box = null
     },
   })
 }

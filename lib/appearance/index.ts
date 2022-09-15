@@ -27,7 +27,7 @@ const Appearance = (app: App) => {
       }
       const waitConfig = binding.arg?.split(':')[1]
       animationFunc = myDebounce(() => tl[animationName](el), waitConfig)
-      animationFunc()
+      animationFunc?.()
     },
     updated(el: HTMLElement, binding: DirectiveBinding<gsap.TweenVars | { from: gsap.TweenVars; to: gsap.TweenVars }>) {
       if (binding.modifiers.update) {
