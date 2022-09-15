@@ -1,8 +1,7 @@
-import { transform } from 'lodash'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { App } from 'vue'
-import { lineGenerator, pointGenerator, onMouseClick } from '../tools'
+import { lineGenerator, onMouseClick, pointGenerator } from '../tools/relythree'
 
 const Three = (app: App) => {
   app.directive('three', {
