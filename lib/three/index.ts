@@ -80,14 +80,16 @@ const Three = (app: App) => {
         { start: 'O', end: 'N' },
         { start: 'P', end: 'O' },
       ]
-      const pointMapAndRelation = { pointsMap, relation }
+      let pointMapAndRelation = { pointsMap, relation }
       //创建小球
-      pointGenerator(pointMapAndRelation.pointsMap, scene)
+      const handledPointsMap = pointGenerator(pointMapAndRelation.pointsMap, scene)
+      //更新经过处理的小球信息
+      pointMapAndRelation = { pointsMap: handledPointsMap, relation: pointMapAndRelation.relation }
       //创建线
       lineGenerator(pointMapAndRelation, scene)
       //鼠标点击事件
       const onMouseClickListener = (event: MouseEvent) => {
-        onMouseClick(event, camera, scene)
+        onMouseClick(event, camera, scene, el, pointMapAndRelation)
       }
       //向window添加鼠标点击事件
       window.addEventListener('click', onMouseClickListener, false)

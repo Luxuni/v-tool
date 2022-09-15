@@ -39,7 +39,7 @@ const isSame = (
   )
 }
 
-//画球
+//画球,在这里已经处理好了小球的位置信息，返回处理好的小球信息 return pointsMap
 const pointGenerator = (pointsMap: TOOLS.pointMap, scene: THREE.Scene) => {
   const isNumber = (data: any) => {
     return myTypeof(data) === 'number'
@@ -72,9 +72,11 @@ const pointGenerator = (pointsMap: TOOLS.pointMap, scene: THREE.Scene) => {
       color: '#2A0944',
     })
     const ball = new THREE.Mesh(sphereGeometry, sphereMaterial)
+    ball.name = item.name
     ball.position.set(item.x as number, item.y as number, item.z as number)
     scene.add(ball)
   })
+  return pointsMap
 }
 
 //画线
@@ -104,7 +106,7 @@ const lineGenerator = (
   })
 }
 
-//传入父球根据父球顶点随机发布小球
+//传入父球根据父球顶点随机分配小球位置
 const random = (array: ArrayLike<number>, pointsMap: TOOLS.pointMap) => {
   pointsMap.forEach((item) => {
     const num = Math.floor(Math.random() * 10201)
@@ -123,20 +125,37 @@ const random = (array: ArrayLike<number>, pointsMap: TOOLS.pointMap) => {
 }
 
 //点击事件
-function onMouseClick(event: MouseEvent, camera: THREE.PerspectiveCamera, scene: THREE.Scene) {
+function onMouseClick(
+  event: MouseEvent,
+  camera: THREE.PerspectiveCamera,
+  scene: THREE.Scene,
+  el: HTMLElement,
+  pointMapAndRelation: TOOLS.pointMapAndRelation,
+) {
   const raycaster = new THREE.Raycaster()
   const mouse = new THREE.Vector2()
   //通过鼠标点击的位置计算出raycaster所需要的点的位置，以屏幕中心为原点，值的范围为-1到1.
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+  mouse.x = (event.clientX / el.clientWidth) * 2 - 1
+  mouse.y = -(event.clientY / el.clientHeight) * 2 + 1
   // 通过鼠标点的位置和当前相机的矩阵计算出raycaster
   raycaster.setFromCamera(mouse, camera)
   // 获取raycaster直线和所有模型相交的数组集合
   const intersects = raycaster.intersectObjects(scene.children)
-  //将所有的相交的模型的颜色设置为红色，如果只需要将第一个触发事件，那就数组的第一个模型改变颜色即可
   if (intersects.length > 0) {
-    // @ts-ignore
+    //@ts-ignore
     intersects[0].object.material.color.set(0xf675a8)
+    //查找所有与点击球相连的球
+    const relationMap = pointMapAndRelation.relation.filter((item) => {
+      return item.start === intersects[0].object.name
+    })
+    relationMap.forEach((relationMapItem) => {
+      scene.children.forEach((sceneItem) => {
+        if (sceneItem.name === relationMapItem.end) {
+          //@ts-ignore
+          sceneItem.material.color.set(0xf675a8)
+        }
+      })
+    })
   }
 }
 export { myTypeof, myDebounce, pointGenerator, lineGenerator, onMouseClick }
