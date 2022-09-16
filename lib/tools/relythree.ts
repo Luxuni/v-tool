@@ -154,4 +154,88 @@ const onMouseClick = (
     })
   }
 }
-export { isSame, pointGenerator, lineGenerator, onMouseClick }
+
+//鼠标按下事件
+const objectMovement: {
+  isMoving: boolean
+  x: number
+  y: number
+  z: number
+  movingObject: null | THREE.Intersection<THREE.Object3D<THREE.Event>>
+  onMouseDown: (
+    event: MouseEvent,
+    camera: THREE.PerspectiveCamera,
+    scene: THREE.Scene,
+    el: HTMLElement,
+    pointMapAndRelation: TOOLS.pointMapAndRelation,
+  ) => void
+  onMouseMove: (
+    event: MouseEvent,
+    camera: THREE.PerspectiveCamera,
+    scene: THREE.Scene,
+    el: HTMLElement,
+    pointMapAndRelation: TOOLS.pointMapAndRelation,
+  ) => void
+  moveObject: (
+    event: MouseEvent,
+    camera: THREE.PerspectiveCamera,
+    scene: THREE.Scene,
+    el: HTMLElement,
+    pointMapAndRelation: TOOLS.pointMapAndRelation,
+  ) => void
+} = {
+  isMoving: false,
+  x: 0,
+  y: 0,
+  z: 0,
+  movingObject: null,
+
+  onMouseDown: function (
+    event: MouseEvent,
+    camera: THREE.PerspectiveCamera,
+    scene: THREE.Scene,
+    el: HTMLElement,
+    pointMapAndRelation: TOOLS.pointMapAndRelation,
+  ) {
+    const raycaster = new THREE.Raycaster()
+    const mouse = new THREE.Vector2()
+    //通过鼠标点击的位置计算出raycaster所需要的点的位置，以屏幕中心为原点，值的范围为-1到1.
+    mouse.x = (event.clientX / el.clientWidth) * 2 - 1
+    mouse.y = -(event.clientY / el.clientHeight) * 2 + 1
+    raycaster.setFromCamera(mouse, camera)
+    // console.log(raycaster)
+    // 获取raycaster直线和所有模型相交的数组集合
+    const intersects = raycaster.intersectObjects(scene.children)
+    console.log(intersects)
+    if (intersects.length > 0) {
+      //获取将要移动的物体
+      this.movingObject = intersects[0]
+      //获取将要移动物体的坐标
+      this.x = intersects[0].object.position.x
+      this.y = intersects[0].object.position.y
+      this.z = intersects[0].object.position.z
+      //开始移动
+      this.isMoving = true
+    }
+  },
+  onMouseMove: function (
+    event: MouseEvent,
+    camera: THREE.PerspectiveCamera,
+    scene: THREE.Scene,
+    el: HTMLElement,
+    pointMapAndRelation: TOOLS.pointMapAndRelation,
+  ) {
+    if (this.isMoving === true) {
+    }
+  },
+  moveObject: function (
+    event: MouseEvent,
+    camera: THREE.PerspectiveCamera,
+    scene: THREE.Scene,
+    el: HTMLElement,
+    pointMapAndRelation: TOOLS.pointMapAndRelation,
+  ) {
+
+  },
+}
+export { isSame, pointGenerator, lineGenerator, onMouseClick, objectMovement }

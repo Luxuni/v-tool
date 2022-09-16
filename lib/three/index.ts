@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { App } from 'vue'
-import { lineGenerator, onMouseClick, pointGenerator } from '../tools/relythree'
+import { lineGenerator, objectMovement, onMouseClick, pointGenerator } from '../tools/relythree'
 
 const Three = (app: App) => {
   app.directive('three', {
@@ -90,8 +90,16 @@ const Three = (app: App) => {
       const onMouseClickListener = (event: MouseEvent) => {
         onMouseClick(event, camera, scene, el, pointMapAndRelation)
       }
+      //鼠标按下事件
+
       //向window添加鼠标点击事件
       window.addEventListener('click', onMouseClickListener, false)
+      //向window添加鼠标按下事件
+      const onMouseDownListener = (event: MouseEvent) => {
+        objectMovement.onMouseDown(event, camera, scene, el, pointMapAndRelation)
+      }
+      window.addEventListener('mousedown', onMouseDownListener, false)
+
       render()
     },
   })
