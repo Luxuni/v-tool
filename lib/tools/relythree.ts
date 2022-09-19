@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Line2 } from 'three/examples/jsm/lines/Line2.js'
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
@@ -22,11 +23,20 @@ const isSame = (
 }
 
 //画球,在这里已经处理好了小球的位置信息，返回处理好的小球信息 return pointsMap
-const pointGenerator = (pointsMap: TOOLS.pointMap, scene: THREE.Scene) => {
+const pointGenerator = (
+  pointMapAndRelation: {
+    pointsMap: TOOLS.pointMap
+    relation: { start: string; end: string }[]
+  },
+  scene: THREE.Scene,
+  camera: THREE.PerspectiveCamera,
+  renderer: THREE.WebGLRenderer,
+  controls: OrbitControls,
+) => {
   const isNumber = (data: any) => {
     return myTypeof(data) === 'number'
   }
-  const isXYZ = pointsMap.every((item) => {
+  const isXYZ = pointMapAndRelation.pointsMap.every((item) => {
     return isNumber(item.x) && isNumber(item.y) && isNumber(item.z)
   })
   const randomPlusOrSubtraction = (num: number) => {
@@ -34,31 +44,46 @@ const pointGenerator = (pointsMap: TOOLS.pointMap, scene: THREE.Scene) => {
   }
   if (!isXYZ) {
     const geometry = new THREE.SphereGeometry(30, 100, 100)
-    random(geometry.attributes.position.array, pointsMap)
+    random(geometry.attributes.position.array, pointMapAndRelation.pointsMap)
   } else {
     //遍历循环pointMap，检查是否有重合的点，有则使用算法避免
-    for (let i = 0; i < pointsMap.length; i++) {
-      for (let j = i + 1; j < pointsMap.length; j++) {
-        if (!isSame(pointsMap[i] as Required<TOOLS.pointMapItem>, pointsMap[j] as Required<TOOLS.pointMapItem>, 2)) {
-          ;((pointsMap[j].x as number) = randomPlusOrSubtraction(pointsMap[j].x as number)),
-            ((pointsMap[j].y as number) = randomPlusOrSubtraction(pointsMap[j].y as number)),
-            ((pointsMap[j].z as number) = randomPlusOrSubtraction(pointsMap[j].z as number))
+    for (let i = 0; i < pointMapAndRelation.pointsMap.length; i++) {
+      for (let j = i + 1; j < pointMapAndRelation.pointsMap.length; j++) {
+        if (
+          !isSame(
+            pointMapAndRelation.pointsMap[i] as Required<TOOLS.pointMapItem>,
+            pointMapAndRelation.pointsMap[j] as Required<TOOLS.pointMapItem>,
+            2,
+          )
+        ) {
+          ;((pointMapAndRelation.pointsMap[j].x as number) = randomPlusOrSubtraction(
+            pointMapAndRelation.pointsMap[j].x as number,
+          )),
+            ((pointMapAndRelation.pointsMap[j].y as number) = randomPlusOrSubtraction(
+              pointMapAndRelation.pointsMap[j].y as number,
+            )),
+            ((pointMapAndRelation.pointsMap[j].z as number) = randomPlusOrSubtraction(
+              pointMapAndRelation.pointsMap[j].z as number,
+            ))
         }
       }
     }
   }
-
-  pointsMap.forEach((item) => {
+  let moveBallArr: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>[] = []
+  pointMapAndRelation.pointsMap.forEach((item) => {
     const sphereGeometry = new THREE.SphereGeometry(2, 20, 20)
     const sphereMaterial = new THREE.MeshStandardMaterial({
       color: 0x2a0944,
     })
+
     const ball = new THREE.Mesh(sphereGeometry, sphereMaterial)
+    moveBallArr.push(ball)
     ball.name = item.name
     ball.position.set(item.x as number, item.y as number, item.z as number)
     scene.add(ball)
   })
-  return pointsMap
+  
+  return { pointMapAndRelation, moveBallArr }
 }
 
 //画线
@@ -69,6 +94,7 @@ const lineGenerator = (
   },
   scene: THREE.Scene,
 ) => {
+  let lineArr: Line2[] = []
   pointMapAndRelation.relation.forEach((item) => {
     let pointArr: number[] = []
     const startPoint = pointMapAndRelation.pointsMap.find((point) => point.name === item.start)
@@ -83,10 +109,12 @@ const lineGenerator = (
     })
     material1.resolution.set(window.innerWidth, window.innerHeight)
     const line = new Line2(geometry, material1)
+    lineArr.push(line)
     line.name = item.start + item.end
     line.computeLineDistances()
     scene.add(line)
   })
+  return lineArr
 }
 
 //传入父球根据父球顶点随机分配小球位置
@@ -155,87 +183,4 @@ const onMouseClick = (
   }
 }
 
-//鼠标按下事件
-const objectMovement: {
-  isMoving: boolean
-  x: number
-  y: number
-  z: number
-  movingObject: null | THREE.Intersection<THREE.Object3D<THREE.Event>>
-  onMouseDown: (
-    event: MouseEvent,
-    camera: THREE.PerspectiveCamera,
-    scene: THREE.Scene,
-    el: HTMLElement,
-    pointMapAndRelation: TOOLS.pointMapAndRelation,
-  ) => void
-  onMouseMove: (
-    event: MouseEvent,
-    camera: THREE.PerspectiveCamera,
-    scene: THREE.Scene,
-    el: HTMLElement,
-    pointMapAndRelation: TOOLS.pointMapAndRelation,
-  ) => void
-  moveObject: (
-    event: MouseEvent,
-    camera: THREE.PerspectiveCamera,
-    scene: THREE.Scene,
-    el: HTMLElement,
-    pointMapAndRelation: TOOLS.pointMapAndRelation,
-  ) => void
-} = {
-  isMoving: false,
-  x: 0,
-  y: 0,
-  z: 0,
-  movingObject: null,
-
-  onMouseDown: function (
-    event: MouseEvent,
-    camera: THREE.PerspectiveCamera,
-    scene: THREE.Scene,
-    el: HTMLElement,
-    pointMapAndRelation: TOOLS.pointMapAndRelation,
-  ) {
-    const raycaster = new THREE.Raycaster()
-    const mouse = new THREE.Vector2()
-    //通过鼠标点击的位置计算出raycaster所需要的点的位置，以屏幕中心为原点，值的范围为-1到1.
-    mouse.x = (event.clientX / el.clientWidth) * 2 - 1
-    mouse.y = -(event.clientY / el.clientHeight) * 2 + 1
-    raycaster.setFromCamera(mouse, camera)
-    // console.log(raycaster)
-    // 获取raycaster直线和所有模型相交的数组集合
-    const intersects = raycaster.intersectObjects(scene.children)
-    console.log(intersects)
-    if (intersects.length > 0) {
-      //获取将要移动的物体
-      this.movingObject = intersects[0]
-      //获取将要移动物体的坐标
-      this.x = intersects[0].object.position.x
-      this.y = intersects[0].object.position.y
-      this.z = intersects[0].object.position.z
-      //开始移动
-      this.isMoving = true
-    }
-  },
-  onMouseMove: function (
-    event: MouseEvent,
-    camera: THREE.PerspectiveCamera,
-    scene: THREE.Scene,
-    el: HTMLElement,
-    pointMapAndRelation: TOOLS.pointMapAndRelation,
-  ) {
-    if (this.isMoving === true) {
-    }
-  },
-  moveObject: function (
-    event: MouseEvent,
-    camera: THREE.PerspectiveCamera,
-    scene: THREE.Scene,
-    el: HTMLElement,
-    pointMapAndRelation: TOOLS.pointMapAndRelation,
-  ) {
-
-  },
-}
-export { isSame, pointGenerator, lineGenerator, onMouseClick, objectMovement }
+export { isSame, pointGenerator, lineGenerator, onMouseClick }

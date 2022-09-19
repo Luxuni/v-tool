@@ -1,7 +1,9 @@
 import * as THREE from 'three'
+import { DragControls } from 'three/examples/jsm/controls/DragControls'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { App } from 'vue'
-import { lineGenerator, objectMovement, onMouseClick, pointGenerator } from '../tools/relythree'
+import { lineGenerator, onMouseClick, pointGenerator } from '../tools/relythree'
+import { TOOLS } from '../tools/tools'
 
 const Three = (app: App) => {
   app.directive('three', {
@@ -11,6 +13,7 @@ const Three = (app: App) => {
       const render = () => {
         //draw by frame
         requestAnimationFrame(render)
+        controls.update()
         renderer.render(scene, camera)
       }
       //scene
@@ -28,8 +31,10 @@ const Three = (app: App) => {
       //add coordinate
       // scene.add(coordinate)
       //create controls
+
       const controls = new OrbitControls(camera, renderer.domElement)
       controls.target.set(0, 0, 0)
+
       const ambientLight = new THREE.AmbientLight(0xffffff)
       scene.add(ambientLight)
       const directionalLight = new THREE.DirectionalLight(0xffffff)
@@ -79,26 +84,49 @@ const Three = (app: App) => {
         { start: 'O', end: 'N' },
         { start: 'P', end: 'O' },
       ]
-      let pointMapAndRelation = { pointsMap, relation }
+      let pointMapAndRelation: TOOLS.pointMapAndRelation = { pointsMap, relation }
       //创建小球
-      const handledPointsMap = pointGenerator(pointMapAndRelation.pointsMap, scene)
       //更新经过处理的小球信息
-      pointMapAndRelation = { pointsMap: handledPointsMap, relation: pointMapAndRelation.relation }
+      let { pointMapAndRelation: newPointMapAndRelation, moveBallArr } = pointGenerator(
+        pointMapAndRelation,
+        scene,
+        camera,
+        renderer,
+        controls,
+      )
       //创建线
-      lineGenerator(pointMapAndRelation, scene)
+      let lineArr = lineGenerator(newPointMapAndRelation, scene)
+      let name: string
+      //拖动小球
+      const dragControls = new DragControls(moveBallArr, camera, renderer.domElement)
+      dragControls.addEventListener('dragstart', function (event) {
+        controls.enabled = false
+      })
+      dragControls.addEventListener('drag', function (event) {
+        newPointMapAndRelation.pointsMap.forEach((newPointMapAndRelationItem) => {
+          if (newPointMapAndRelationItem.name === event.object.name) {
+            newPointMapAndRelationItem.x = event.object.position.x
+            newPointMapAndRelationItem.y = event.object.position.y
+            newPointMapAndRelationItem.z = event.object.position.z
+            name = newPointMapAndRelationItem.name
+            lineArr.forEach((lineItem) => {
+              lineItem.geometry.dispose()
+            })
+            scene.remove(...lineArr)
+          }
+        })
+        lineArr = lineGenerator(newPointMapAndRelation, scene)
+      })
+      dragControls.addEventListener('dragend', function (event) {
+        controls.enabled = true
+      })
+
       //鼠标点击事件
       const onMouseClickListener = (event: MouseEvent) => {
-        onMouseClick(event, camera, scene, el, pointMapAndRelation)
+        onMouseClick(event, camera, scene, el, newPointMapAndRelation)
       }
-      //鼠标按下事件
-
       //向window添加鼠标点击事件
       window.addEventListener('click', onMouseClickListener, false)
-      //向window添加鼠标按下事件
-      const onMouseDownListener = (event: MouseEvent) => {
-        objectMovement.onMouseDown(event, camera, scene, el, pointMapAndRelation)
-      }
-      window.addEventListener('mousedown', onMouseDownListener, false)
 
       render()
     },
