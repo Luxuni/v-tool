@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { DragControls } from 'three/examples/jsm/controls/DragControls'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { App } from 'vue'
-import { lineGenerator, onMouseClick, pointGenerator } from '../tools/relythree'
+import { controlCamera, lineGenerator, onMouseClick, pointGenerator } from '../tools/relythree'
 import { TOOLS } from '../tools/tools'
 
 const Three = (app: App) => {
@@ -32,7 +32,7 @@ const Three = (app: App) => {
       // scene.add(coordinate)
       //create controls
 
-      const controls = new OrbitControls(camera, renderer.domElement)
+      const controls = controlCamera(camera, renderer)
       controls.target.set(0, 0, 0)
 
       const ambientLight = new THREE.AmbientLight(0xffffff)
