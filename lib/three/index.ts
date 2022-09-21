@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { DragControls } from 'three/examples/jsm/controls/DragControls'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { App } from 'vue'
-import { lineGenerator, onMouseClick, pointGenerator } from '../tools/relythree'
+import { addMove, controlCamera, lineGenerator, onMouseClick, pointGenerator } from '../tools/relythree'
 import { TOOLS } from '../tools/tools'
 
 const Three = (app: App) => {
@@ -32,7 +32,7 @@ const Three = (app: App) => {
       // scene.add(coordinate)
       //create controls
 
-      const controls = new OrbitControls(camera, renderer.domElement)
+      const controls = controlCamera(camera, renderer)
       controls.target.set(0, 0, 0)
 
       const ambientLight = new THREE.AmbientLight(0xffffff)
@@ -96,30 +96,19 @@ const Three = (app: App) => {
       )
       //创建线
       let lineArr = lineGenerator(newPointMapAndRelation, scene)
-      let name: string
       //拖动小球
-      const dragControls = new DragControls(moveBallArr, camera, renderer.domElement)
-      dragControls.addEventListener('dragstart', function (event) {
-        controls.enabled = false
-      })
-      dragControls.addEventListener('drag', function (event) {
-        newPointMapAndRelation.pointsMap.forEach((newPointMapAndRelationItem) => {
-          if (newPointMapAndRelationItem.name === event.object.name) {
-            newPointMapAndRelationItem.x = event.object.position.x
-            newPointMapAndRelationItem.y = event.object.position.y
-            newPointMapAndRelationItem.z = event.object.position.z
-            name = newPointMapAndRelationItem.name
-            lineArr.forEach((lineItem) => {
-              lineItem.geometry.dispose()
-            })
-            scene.remove(...lineArr)
-          }
-        })
-        lineArr = lineGenerator(newPointMapAndRelation, scene)
-      })
-      dragControls.addEventListener('dragend', function (event) {
-        controls.enabled = true
-      })
+      addMove(
+        moveBallArr,
+        camera,
+        renderer,
+        controls,
+        newPointMapAndRelation as {
+          pointsMap: Required<TOOLS.pointMapItem>[]
+          relation: { start: string; end: string }[]
+        },
+        lineArr,
+        scene,
+      )
 
       //鼠标点击事件
       const onMouseClickListener = (event: MouseEvent) => {

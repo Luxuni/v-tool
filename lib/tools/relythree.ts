@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { DragControls } from 'three/examples/jsm/controls/DragControls'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { Line2 } from 'three/examples/jsm/lines/Line2.js'
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js'
@@ -18,14 +19,14 @@ const isSame = (
         Math.pow(Math.abs(point1.y - point2.y), 2) +
         Math.pow(Math.abs(point1.z - point2.z), 2),
     ) >
-    radius * 3
+    radius * 4
   )
 }
 
 //画球,在这里已经处理好了小球的位置信息，返回处理好的小球信息 return pointsMap
 const pointGenerator = (
   pointMapAndRelation: {
-    pointsMap: TOOLS.pointMap
+    pointsMap: TOOLS.pointMap | Required<TOOLS.pointMapItem>[]
     relation: { start: string; end: string }[]
   },
   scene: THREE.Scene,
@@ -43,7 +44,7 @@ const pointGenerator = (
     return Math.random() > 0.5 ? (num += 8) : (num -= 8)
   }
   if (!isXYZ) {
-    const geometry = new THREE.SphereGeometry(30, 100, 100)
+    const geometry = new THREE.SphereGeometry(50, 120, 120)
     random(geometry.attributes.position.array, pointMapAndRelation.pointsMap)
   } else {
     //遍历循环pointMap，检查是否有重合的点，有则使用算法避免
@@ -71,7 +72,7 @@ const pointGenerator = (
   }
   let moveBallArr: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>[] = []
   pointMapAndRelation.pointsMap.forEach((item) => {
-    const sphereGeometry = new THREE.SphereGeometry(2, 20, 20)
+    const sphereGeometry = new THREE.SphereGeometry(3, 20, 20)
     const sphereMaterial = new THREE.MeshStandardMaterial({
       color: 0x2a0944,
     })
@@ -82,7 +83,7 @@ const pointGenerator = (
     ball.position.set(item.x as number, item.y as number, item.z as number)
     scene.add(ball)
   })
-  
+
   return { pointMapAndRelation, moveBallArr }
 }
 
@@ -183,4 +184,54 @@ const onMouseClick = (
   }
 }
 
-export { isSame, pointGenerator, lineGenerator, onMouseClick }
+//控制视角
+const controlCamera = (camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer) => {
+  const controls = new OrbitControls(camera, renderer.domElement)
+  controls.enableDamping = true
+  controls.dampingFactor = 0.05
+  controls.screenSpacePanning = false
+  controls.minDistance = 100
+  controls.maxDistance = 500
+  controls.maxPolarAngle = Math.PI / 2
+  return controls
+}
+
+//给小球添加移动
+const addMove = (
+  moveBallArr: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>[],
+  camera: THREE.PerspectiveCamera,
+  renderer: THREE.WebGLRenderer,
+  controls: OrbitControls,
+  pointMapAndRelation: {
+    pointsMap: Required<TOOLS.pointMapItem>[]
+    relation: { start: string; end: string }[]
+  },
+  lineArr: Line2[],
+  scene: THREE.Scene,
+) => {
+  const dragControls = new DragControls(moveBallArr, camera, renderer.domElement)
+  let name = ''
+  dragControls.addEventListener('dragstart', function (event) {
+    controls.enabled = false
+  })
+  dragControls.addEventListener('drag', function (event) {
+    pointMapAndRelation.pointsMap.forEach((pointsMapItem) => {
+      if (pointsMapItem.name === event.object.name) {
+        pointsMapItem.x = event.object.position.x
+        pointsMapItem.y = event.object.position.y
+        pointsMapItem.z = event.object.position.z
+        name = pointsMapItem.name
+        lineArr.forEach((lineItem) => {
+          lineItem.geometry.dispose()
+        })
+        scene.remove(...lineArr)
+      }
+    })
+    lineArr = lineGenerator(pointMapAndRelation, scene)
+  })
+  dragControls.addEventListener('dragend', function (event) {
+    controls.enabled = true
+  })
+}
+
+export { isSame, pointGenerator, lineGenerator, onMouseClick, controlCamera, addMove }
