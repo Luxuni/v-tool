@@ -1,8 +1,7 @@
 import * as THREE from 'three'
 import { DragControls } from 'three/examples/jsm/controls/DragControls'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { App } from 'vue'
-import { controlCamera, lineGenerator, onMouseClick, pointGenerator } from '../tools/relythree'
+import { controlCamera, get2DPosition, lineGenerator, onMouseClick, pointGenerator } from '../tools/relythree'
 import { TOOLS } from '../tools/tools'
 
 const Three = (app: App) => {
@@ -20,16 +19,16 @@ const Three = (app: App) => {
       const scene = new THREE.Scene()
       //camera
       const camera = new THREE.PerspectiveCamera(1000, 1, 0.1, 1000)
-      camera.position.set(0, 50, 0)
+      camera.position.set(0, 0, 0)
       //renderer
       const renderer = new THREE.WebGLRenderer({ antialias: true })
       renderer.setPixelRatio(window.devicePixelRatio)
       renderer.setSize(el.offsetWidth, el.offsetHeight)
       el.appendChild(renderer.domElement)
       //coordinate
-      // const coordinate = new THREE.AxesHelper(100)
+      const coordinate = new THREE.AxesHelper(100)
       //add coordinate
-      // scene.add(coordinate)
+      scene.add(coordinate)
       //create controls
 
       const controls = controlCamera(camera, renderer)
@@ -97,7 +96,7 @@ const Three = (app: App) => {
       //创建线
       let lineArr = lineGenerator(newPointMapAndRelation, scene)
       let name: string
-      //拖动小球
+      //拖动小球的事件将在这里处理
       const dragControls = new DragControls(moveBallArr, camera, renderer.domElement)
       dragControls.addEventListener('dragstart', function (event) {
         controls.enabled = false
@@ -120,13 +119,18 @@ const Three = (app: App) => {
       dragControls.addEventListener('dragend', function (event) {
         controls.enabled = true
       })
+      //鼠标移入节点时获取节点的2D坐标
+      dragControls.addEventListener('hoveron', function (event) {
+        const positionTwoD = get2DPosition(event.object.position, renderer, camera)
+        console.log(positionTwoD)
+      })
 
       //鼠标点击事件
       const onMouseClickListener = (event: MouseEvent) => {
         onMouseClick(event, camera, scene, el, newPointMapAndRelation)
       }
-      //向window添加鼠标点击事件
-      window.addEventListener('click', onMouseClickListener, false)
+      //向el添加鼠标点击事件
+      el.addEventListener('click', onMouseClickListener, false)
 
       render()
     },

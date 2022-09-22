@@ -195,4 +195,24 @@ const controlCamera = (camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRen
   return controls
 }
 
-export { isSame, pointGenerator, lineGenerator, onMouseClick, controlCamera }
+//3D坐标转2D坐标
+const get2DPosition = (
+  position: {
+    x: number
+    y: number
+    z: number
+  },
+  renderer: THREE.WebGLRenderer,
+  camera: THREE.PerspectiveCamera,
+) => {
+  const vector = new THREE.Vector3()
+  const canvas = renderer.domElement
+  const positionTwoD = { x: 0, y: 0 }
+  vector.set(position.x, position.y, position.z)
+  vector.project(camera)
+  positionTwoD.x = Math.round(((vector.x + 1) * canvas.width) / 2)
+  positionTwoD.y = Math.round(((-vector.y + 1) * canvas.height) / 2)
+  return positionTwoD
+}
+
+export { isSame, pointGenerator, lineGenerator, onMouseClick, controlCamera, get2DPosition }
