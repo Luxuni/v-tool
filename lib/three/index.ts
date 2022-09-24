@@ -41,26 +41,26 @@ const Three = (app: App) => {
       directionalLight.position.normalize()
       scene.add(directionalLight)
       const pointsMap = [
-        { name: 'A' },
-        { name: 'B' },
-        { name: 'C' },
-        { name: 'D' },
-        { name: 'E' },
-        { name: 'F' },
-        { name: 'G' },
-        { name: 'H' },
-        { name: 'I' },
-        { name: 'J' },
-        { name: 'K' },
-        { name: 'L' },
-        { name: 'M' },
-        { name: 'N' },
-        { name: 'O' },
-        { name: 'P' },
-        { name: 'Q' },
-        { name: 'R' },
-        { name: 'S' },
-        { name: 'T' },
+        { name: 'A', message: '想在这里展示一点什么东西' },
+        { name: 'B', message: '想在这里展示一点什么东西' },
+        { name: 'C', message: '想在这里展示一点什么东西' },
+        { name: 'D', message: '想在这里展示一点什么东西' },
+        { name: 'E', message: '想在这里展示一点什么东西' },
+        { name: 'F', message: '想在这里展示一点什么东西' },
+        { name: 'G', message: '想在这里展示一点什么东西' },
+        { name: 'H', message: '想在这里展示一点什么东西' },
+        { name: 'I', message: '想在这里展示一点什么东西' },
+        { name: 'J', message: '想在这里展示一点什么东西' },
+        { name: 'K', message: '想在这里展示一点什么东西' },
+        { name: 'L', message: '想在这里展示一点什么东西' },
+        { name: 'M', message: '想在这里展示一点什么东西' },
+        { name: 'N', message: '想在这里展示一点什么东西' },
+        { name: 'O', message: '想在这里展示一点什么东西' },
+        { name: 'P', message: '想在这里展示一点什么东西' },
+        { name: 'Q', message: '想在这里展示一点什么东西' },
+        { name: 'R', message: '想在这里展示一点什么东西' },
+        { name: 'S', message: '想在这里展示一点什么东西' },
+        { name: 'T', message: '想在这里展示一点什么东西' },
       ]
 
       const relation = [
@@ -96,6 +96,15 @@ const Three = (app: App) => {
       //创建线
       let lineArr = lineGenerator(newPointMapAndRelation, scene)
       let name: string
+      const nodeInfo = (positionTwoD: { x: number; y: number }, message: string): Node => {
+        const div = document.createElement('div')
+        div.className = 'node-info'
+        div.innerHTML = message
+        div.style.position = 'absolute'
+        div.style.top = positionTwoD.y + 'px'
+        div.style.left = positionTwoD.x + 'px'
+        return div
+      }
       //拖动小球的事件将在这里处理
       const dragControls = new DragControls(moveBallArr, camera, renderer.domElement)
       dragControls.addEventListener('dragstart', function (event) {
@@ -121,8 +130,15 @@ const Three = (app: App) => {
       })
       //鼠标移入节点时获取节点的2D坐标
       dragControls.addEventListener('hoveron', function (event) {
-        const positionTwoD = get2DPosition(event.object.position, renderer, camera)
+        const positionTwoD = get2DPosition(el, event, renderer.domElement, camera, scene)
+        console.log(event)
         console.log(positionTwoD)
+        el.appendChild(
+          nodeInfo(
+            positionTwoD,
+            newPointMapAndRelation.pointsMap.filter((item) => item.name === event.object.name)[0].message as string,
+          ),
+        )
       })
 
       //鼠标点击事件

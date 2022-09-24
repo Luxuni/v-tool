@@ -197,21 +197,20 @@ const controlCamera = (camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRen
 
 //3D坐标转2D坐标
 const get2DPosition = (
-  position: {
-    x: number
-    y: number
-    z: number
-  },
-  renderer: THREE.WebGLRenderer,
+  el: HTMLElement,
+  event: THREE.Event,
+  renderer: HTMLCanvasElement,
   camera: THREE.PerspectiveCamera,
+  scene: THREE.Scene,
 ) => {
   const vector = new THREE.Vector3()
-  const canvas = renderer.domElement
   const positionTwoD = { x: 0, y: 0 }
-  vector.set(position.x, position.y, position.z)
-  vector.project(camera)
-  positionTwoD.x = Math.round(((vector.x + 1) * canvas.width) / 2)
-  positionTwoD.y = Math.round(((-vector.y + 1) * canvas.height) / 2)
+  const obj = scene.getObjectByName(event.object.name) as THREE.Object3D<THREE.Event>
+  const halfWidth = el.clientWidth / 2
+  const halfHeight = el.clientHeight / 2
+  vector.setFromMatrixPosition(obj.matrixWorld).project(camera)
+  positionTwoD.x = Math.round(vector.x * halfWidth + halfWidth)
+  positionTwoD.y = Math.round(-vector.y * halfHeight + halfHeight)
   return positionTwoD
 }
 
