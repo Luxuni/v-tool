@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { DragControls } from 'three/examples/jsm/controls/DragControls'
 import { App } from 'vue'
-import { controlCamera, get2DPosition, lineGenerator, onMouseClick, pointGenerator } from '../tools/relythree'
+import { controlCamera, get2DPosition, lineGenerator, nodeInfo, onMouseClick, pointGenerator } from '../tools/relythree'
 import { TOOLS } from '../tools/tools'
 
 const Three = (app: App) => {
@@ -96,21 +96,16 @@ const Three = (app: App) => {
       //创建线
       let lineArr = lineGenerator(newPointMapAndRelation, scene)
       let name: string
-      const nodeInfo = (positionTwoD: { x: number; y: number }, message: string): Node => {
-        const div = document.createElement('div')
-        div.className = 'node-info'
-        div.innerHTML = message
-        div.style.position = 'absolute'
-        div.style.top = positionTwoD.y + 'px'
-        div.style.left = positionTwoD.x + 'px'
-        return div
-      }
+      let nodeTip: Node | null = null
+      let nodeTipStyle: CSSStyleDeclaration | null = null
       //拖动小球的事件将在这里处理
       const dragControls = new DragControls(moveBallArr, camera, renderer.domElement)
       dragControls.addEventListener('dragstart', function (event) {
         controls.enabled = false
       })
+      //鼠标拖动小球移动时
       dragControls.addEventListener('drag', function (event) {
+        //处理小球移动时的线
         newPointMapAndRelation.pointsMap.forEach((newPointMapAndRelationItem) => {
           if (newPointMapAndRelationItem.name === event.object.name) {
             newPointMapAndRelationItem.x = event.object.position.x
@@ -124,23 +119,31 @@ const Three = (app: App) => {
           }
         })
         lineArr = lineGenerator(newPointMapAndRelation, scene)
+        //处理小球移动时的提示信息要追随小球移动
+        if (nodeTip && nodeTipStyle) {
+          const { x, y } = get2DPosition(el, event, camera, scene)
+          nodeTipStyle.left = x + 'px'
+          nodeTipStyle.top = y + 20 + 'px'
+        }
       })
       dragControls.addEventListener('dragend', function (event) {
         controls.enabled = true
       })
-      //鼠标移入节点时获取节点的2D坐标
+      //鼠标移入节点时获取节点
       dragControls.addEventListener('hoveron', function (event) {
-        const positionTwoD = get2DPosition(el, event, renderer.domElement, camera, scene)
-        console.log(event)
-        console.log(positionTwoD)
-        el.appendChild(
-          nodeInfo(
-            positionTwoD,
-            newPointMapAndRelation.pointsMap.filter((item) => item.name === event.object.name)[0].message as string,
-          ),
+        const { div, style } = nodeInfo(
+          get2DPosition(el, event, camera, scene),
+          newPointMapAndRelation.pointsMap.filter((item) => item.name === event.object.name)[0].message as string,
         )
+        nodeTipStyle = style
+        nodeTip = el.appendChild(div)
       })
-
+      //鼠标移出节点时删除节点
+      dragControls.addEventListener('hoveroff', function (event) {
+        Array.from(el.getElementsByClassName('nodeInfo')).forEach((item) => {
+          el.removeChild(item)
+        })
+      })
       //鼠标点击事件
       const onMouseClickListener = (event: MouseEvent) => {
         onMouseClick(event, camera, scene, el, newPointMapAndRelation)

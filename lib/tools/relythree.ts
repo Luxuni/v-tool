@@ -196,22 +196,29 @@ const controlCamera = (camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRen
 }
 
 //3D坐标转2D坐标
-const get2DPosition = (
-  el: HTMLElement,
-  event: THREE.Event,
-  renderer: HTMLCanvasElement,
-  camera: THREE.PerspectiveCamera,
-  scene: THREE.Scene,
-) => {
+const get2DPosition = (el: HTMLElement, event: THREE.Event, camera: THREE.PerspectiveCamera, scene: THREE.Scene) => {
   const vector = new THREE.Vector3()
-  const positionTwoD = { x: 0, y: 0 }
   const obj = scene.getObjectByName(event.object.name) as THREE.Object3D<THREE.Event>
   const halfWidth = el.clientWidth / 2
   const halfHeight = el.clientHeight / 2
   vector.setFromMatrixPosition(obj.matrixWorld).project(camera)
-  positionTwoD.x = Math.round(vector.x * halfWidth + halfWidth)
-  positionTwoD.y = Math.round(-vector.y * halfHeight + halfHeight)
-  return positionTwoD
+  return { x: Math.round(vector.x * halfWidth + halfWidth), y: Math.round(-vector.y * halfHeight + halfHeight) }
 }
 
-export { isSame, pointGenerator, lineGenerator, onMouseClick, controlCamera, get2DPosition }
+//创建提示信息节点
+const nodeInfo = (
+  positionTwoD: { x: number; y: number },
+  message: string,
+): { div: Node; style: CSSStyleDeclaration } => {
+  const div = document.createElement('div')
+  div.innerHTML = message
+  div.className = 'nodeInfo'
+  const style = div.style
+  style.position = 'absolute'
+  style.top = positionTwoD.y + 20 + 'px'
+  style.left = positionTwoD.x + 'px'
+  style.backgroundColor = '#fff'
+  return { div, style }
+}
+
+export { isSame, pointGenerator, lineGenerator, onMouseClick, controlCamera, get2DPosition, nodeInfo }
