@@ -217,7 +217,6 @@ const nodeInfo = (
   style.position = 'absolute'
   style.top = positionTwoD.y + 20 + 'px'
   style.left = positionTwoD.x + 'px'
-  style.backgroundColor = '#fff'
   return { div, style }
 }
 

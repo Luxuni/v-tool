@@ -1,13 +1,13 @@
 import * as THREE from 'three'
 import { DragControls } from 'three/examples/jsm/controls/DragControls'
-import { App } from 'vue'
+import { App, DirectiveBinding } from 'vue'
 import { controlCamera, get2DPosition, lineGenerator, nodeInfo, onMouseClick, pointGenerator } from '../tools/relythree'
 import { TOOLS } from '../tools/tools'
 
 const Three = (app: App) => {
   app.directive('three', {
     created() {},
-    mounted(el: HTMLElement, binding: any) {
+    mounted(el: HTMLElement, binding: DirectiveBinding<TOOLS.pointMapAndRelation>) {
       //render function
       const render = () => {
         //draw by frame
@@ -40,54 +40,11 @@ const Three = (app: App) => {
       directionalLight.position.set(2, 2, -3)
       directionalLight.position.normalize()
       scene.add(directionalLight)
-      const pointsMap = [
-        { name: 'A', message: '想在这里展示一点什么东西' },
-        { name: 'B', message: '想在这里展示一点什么东西' },
-        { name: 'C', message: '想在这里展示一点什么东西' },
-        { name: 'D', message: '想在这里展示一点什么东西' },
-        { name: 'E', message: '想在这里展示一点什么东西' },
-        { name: 'F', message: '想在这里展示一点什么东西' },
-        { name: 'G', message: '想在这里展示一点什么东西' },
-        { name: 'H', message: '想在这里展示一点什么东西' },
-        { name: 'I', message: '想在这里展示一点什么东西' },
-        { name: 'J', message: '想在这里展示一点什么东西' },
-        { name: 'K', message: '想在这里展示一点什么东西' },
-        { name: 'L', message: '想在这里展示一点什么东西' },
-        { name: 'M', message: '想在这里展示一点什么东西' },
-        { name: 'N', message: '想在这里展示一点什么东西' },
-        { name: 'O', message: '想在这里展示一点什么东西' },
-        { name: 'P', message: '想在这里展示一点什么东西' },
-        { name: 'Q', message: '想在这里展示一点什么东西' },
-        { name: 'R', message: '想在这里展示一点什么东西' },
-        { name: 'S', message: '想在这里展示一点什么东西' },
-        { name: 'T', message: '想在这里展示一点什么东西' },
-      ]
 
-      const relation = [
-        { start: 'A', end: 'B' },
-        { start: 'A', end: 'C' },
-        { start: 'A', end: 'D' },
-        { start: 'A', end: 'E' },
-        { start: 'A', end: 'F' },
-        { start: 'A', end: 'G' },
-        { start: 'A', end: 'H' },
-        { start: 'A', end: 'I' },
-        { start: 'A', end: 'J' },
-        { start: 'A', end: 'K' },
-        { start: 'Q', end: 'L' },
-        { start: 'Q', end: 'M' },
-        { start: 'Q', end: 'N' },
-        { start: 'Q', end: 'O' },
-        { start: 'Q', end: 'P' },
-        { start: 'Q', end: 'R' },
-        { start: 'O', end: 'S' },
-        { start: 'Q', end: 'T' },
-      ]
-      let pointMapAndRelation: TOOLS.pointMapAndRelation = { pointsMap, relation }
       //创建小球
       //更新经过处理的小球信息
       let { pointMapAndRelation: newPointMapAndRelation, moveBallArr } = pointGenerator(
-        pointMapAndRelation,
+        binding.value,
         scene,
         camera,
         renderer,
