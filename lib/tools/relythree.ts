@@ -33,42 +33,8 @@ const pointGenerator = (
   renderer: THREE.WebGLRenderer,
   controls: OrbitControls,
 ) => {
-  const isNumber = (data: any) => {
-    return myTypeof(data) === 'number'
-  }
-  const isXYZ = pointMapAndRelation.pointsMap.every((item) => {
-    return isNumber(item.x) && isNumber(item.y) && isNumber(item.z)
-  })
-  const randomPlusOrSubtraction = (num: number) => {
-    return Math.random() > 0.5 ? (num += 8) : (num -= 8)
-  }
-  if (!isXYZ) {
-    const geometry = new THREE.SphereGeometry(30, 100, 100)
-    random(geometry.attributes.position.array, pointMapAndRelation.pointsMap)
-  } else {
-    //遍历循环pointMap，检查是否有重合的点，有则使用算法避免
-    for (let i = 0; i < pointMapAndRelation.pointsMap.length; i++) {
-      for (let j = i + 1; j < pointMapAndRelation.pointsMap.length; j++) {
-        if (
-          !isSame(
-            pointMapAndRelation.pointsMap[i] as Required<TOOLS.pointMapItem>,
-            pointMapAndRelation.pointsMap[j] as Required<TOOLS.pointMapItem>,
-            2,
-          )
-        ) {
-          ;((pointMapAndRelation.pointsMap[j].x as number) = randomPlusOrSubtraction(
-            pointMapAndRelation.pointsMap[j].x as number,
-          )),
-            ((pointMapAndRelation.pointsMap[j].y as number) = randomPlusOrSubtraction(
-              pointMapAndRelation.pointsMap[j].y as number,
-            )),
-            ((pointMapAndRelation.pointsMap[j].z as number) = randomPlusOrSubtraction(
-              pointMapAndRelation.pointsMap[j].z as number,
-            ))
-        }
-      }
-    }
-  }
+  const geometry = new THREE.SphereGeometry(30, 100, 100)
+  random(geometry.attributes.position.array, pointMapAndRelation.pointsMap)
   let moveBallArr: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>[] = []
   pointMapAndRelation.pointsMap.forEach((item) => {
     const sphereGeometry = new THREE.SphereGeometry(2, 20, 20)

@@ -3,7 +3,7 @@ import { DragControls } from 'three/examples/jsm/controls/DragControls'
 import { App, DirectiveBinding } from 'vue'
 import { controlCamera, get2DPosition, lineGenerator, nodeInfo, onMouseClick, pointGenerator } from '../tools/relythree'
 import { TOOLS } from '../tools/tools'
-
+//TODO:改进布局方式,中心点布局
 const Three = (app: App) => {
   app.directive('three', {
     created() {},
