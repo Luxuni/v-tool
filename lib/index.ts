@@ -3,14 +3,13 @@ import StyleChange from './stylechange/index';
 import Appearance from './appearance/index';
 import EToolsCharts from './etoolscharts/index';
 import WH from './wh/index';
-const Tools = [StyleChange, Appearance, EToolsCharts, WH];
+const Tool = [ Appearance];
 const install = (app: App) => {
-  Tools.forEach((item) => {
+  Tool.forEach((item) => {
     app.use(item);
   });
   return app;
 };
-export { Tools };
 export default {
   install,
 };
