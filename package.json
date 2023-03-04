@@ -1,6 +1,6 @@
 {
   "name": "lvuetools",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "> TODO: description",
   "author": "xiaoxin <3422056558@qq.com>",
   "homepage": "",
@@ -21,7 +21,8 @@
     "gsap": "^3.11.1",
     "lodash": "^4.17.21",
     "three": "^0.144.0",
-    "three.meshline": "^1.4.0"
+    "three.meshline": "^1.4.0",
+    "vue": "^3.2.47"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.185",
