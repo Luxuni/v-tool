@@ -16,12 +16,20 @@
 
 这样您就将防抖间隔时间修改为了800ms
 
-### v-appearance：开场！
+### v-appearance：
+
+可以在组件加载完成后开始开场动画
 
 完整参数传入如下
 
 ```js
-v-appearance:customize:700:fromTo.update="{ from:{y :500},to:{y:0}} "
+v-appearance="{
+      way: 'fromTo',
+      name: 'customize',
+      update: true,
+      from: { y: 500 },
+      to: { y: 0 },
+    }"
 ```
 
 customize为自定义动画名称name，请保证其唯一性，否则可能会发生意料之外的错误
@@ -30,7 +38,7 @@ customize为自定义动画名称name，请保证其唯一性，否则可能会�
 
 fromTo为动画方式，详情可以参考gsap的from和fromTo
 
-.update为开启被绑定元素更新时再次重新进行开场，会采用之前传入的wait作为防抖的wait
+update为开启被绑定元素更新时再次重新进行开场，会采用之前传入的wait作为防抖的wait
 
 ### v-etoolscharts 图表！集成了Echarts
 
